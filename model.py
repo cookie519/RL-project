@@ -4,20 +4,33 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
-def mlp(dims, activation=nn.ReLU, output_activation=None):
-    n_dims = len(dims)
-    assert n_dims >= 2, 'MLP requires at least two dimensions (input and output)'
-  
-    layers = []
-    for i in range(n_dims - 2):
-        layers.extend([nn.Linear(dims[i], dims[i+1]), activation()])
-    layers.append(nn.Linear(dims[-2], dims[-1]))
-    if output_activation is not None:
-        layers.append(output_activation())
-      
-    net = nn.Sequential(*layers)
-    net = net.to(dtype=torch.float32)
-    return net
+def create_mlp(layer_dims, 
+               activation_fn=nn.ReLU,
+               output_activation_fn=None):
+    """
+    Create a multi-layer perceptron (MLP) PyTorch model.
+
+    Args:
+        layer_dims (list): a list of layer dimensions including input and 
+            output dimension. 
+        activation_fn (Type[nn.Module]): activation function module after 
+            each linear layer.
+        output_activation_fn (Type[nn.Module]): activation function for output layer
+
+    Returns: 
+        nn.Sequential: the MLP model
+    """               
+    n = len(layer_dims)
+    assert n >= 2, 'MLP requires at least two dimensions (input and output)'
+
+    layers = []               
+    for i in range(n - 2):
+        layers.extend([nn.Linear(layer_dims[i], layer_dims[i+1]), activation_fn()]) 
+    layers.append(nn.Linear(layer_dims[-2], layer_dims[-1]))
+    if output_activation_fn is not None:
+        layers.append(output_activation_fn)
+
+    return nn.Sequential(*layers).to(torch.float32)
   
 
 class TwinQ(nn.Module):
@@ -118,6 +131,24 @@ class MLPResNet(nn.Module):
 class ScoreNet_IDQL(nn.Module):
 
 class GaussianFourierProjection(nn.Module):
+
+
+class GaussianFourierProjection(nn.Module):
+    """Gaussian random features for encoding temporal information.
+
+    This module uses fixed random weights to project inputs into a space where
+    they can be more easily separated or processed by subsequent layers.
+    """
+    def __init__(self, embed_dim, scale=30.):
+        super(GaussianFourierProjection, self).__init__()
+        # Initialize fixed random weights
+        self.register_buffer('W', torch.randn(embed_dim // 2) * scale, persistent=False)
+
+    def forward(self, x):
+        """Applies the Gaussian Fourier projection to the input tensor."""
+        x_proj = x.unsqueeze(dim=-1) * self.W.unsqueeze(dim=0) * 2 * np.pi
+        return torch.cat([torch.sin(x_proj), torch.cos(x_proj)], dim=-1)
+
 
 
   
