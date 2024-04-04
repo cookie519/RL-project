@@ -60,7 +60,7 @@ class DiracPolicy(nn.Module):
 
 
 class MLPResNetBlock(nn.Module):
-    def __init__(self, features, act=nn.ReLU(), dropout_rate=0.0, use_layer_norm=False):
+    def __init__(self, features, act=F.relu, dropout_rate=None, use_layer_norm=False):
         super(MLPResNetBlock, self).__init__()
         self.features = features
         self.act = act
@@ -72,7 +72,7 @@ class MLPResNetBlock(nn.Module):
                   nn.Linear(features * 4, features)]
         if use_layer_norm:
             layers.insert(1, nn.LayerNorm(features))
-        if dropout_rate > 0.0:
+        if dropout_rate is not None and dropout_rate > 0.0:
             layers.insert(1, nn.Dropout(dropout_rate))
         self.layers = nn.Sequential(*layers)
 
