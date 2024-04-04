@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
-def create_mlp(layer_dims, 
+def mlp(layer_dims, 
                activation_fn=nn.ReLU,
                output_activation_fn=None):
     """
@@ -129,8 +129,6 @@ class MLPResNet(nn.Module):
 
 
 class ScoreNet_IDQL(nn.Module):
-
-class GaussianFourierProjection(nn.Module):
 
 
 class GaussianFourierProjection(nn.Module):
