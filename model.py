@@ -5,8 +5,8 @@ import torch.nn.functional as F
 
 
 def mlp(layer_dims, 
-               activation_fn=nn.ReLU,
-               output_activation_fn=None):
+         activation_fn=nn.ReLU,
+         output_activation_fn=None):
     """
     Create a multi-layer perceptron (MLP) PyTorch model.
 
