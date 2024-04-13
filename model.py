@@ -13,9 +13,9 @@ def mlp(layer_dims,
     Args:
         layer_dims (list): a list of layer dimensions including input and 
             output dimension. 
-        activation_fn (Type[nn.Module]): activation function module after 
+        activation (Type[nn.Module]): activation function module after 
             each linear layer.
-        output_activation_fn (Type[nn.Module]): activation function for output layer
+        output_activation (Type[nn.Module]): activation function for output layer
 
     Returns: 
         nn.Sequential: the MLP model
@@ -25,10 +25,10 @@ def mlp(layer_dims,
 
     layers = []               
     for i in range(n - 2):
-        layers.extend([nn.Linear(layer_dims[i], layer_dims[i+1]), activation_fn()]) 
+        layers.extend([nn.Linear(layer_dims[i], layer_dims[i+1]), activation()]) 
     layers.append(nn.Linear(layer_dims[-2], layer_dims[-1]))
-    if output_activation_fn is not None:
-        layers.append(output_activation_fn)
+    if output_activation  is not None:
+        layers.append(output_activation)
 
     return nn.Sequential(*layers).to(torch.float32)
   
