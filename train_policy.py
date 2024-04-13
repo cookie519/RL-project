@@ -54,8 +54,8 @@ def main(args):
     marginal_prob_std_fn = functools.partial(marginal_prob_std, device=args.device, beta_1=20.0)
     args.marginal_prob_std_fn = marginal_prob_std_fn
 
-    srpo_model = SRPO(input_dim=state_dim+action_dim, output_dim=action_dim, marginal_prob_std=marginal_prob_std_fn, args=args).to(args.device)
-    srpo_model.q[0].to(args.device)
+    srpo_policy = SRPO(input_dim=state_dim+action_dim, output_dim=action_dim, marginal_prob_std=marginal_prob_std_fn, args=args).to(args.device)
+    srpo_policy.q[0].to(args.device)
 
     if args.actor_load_path:
         try:
@@ -76,7 +76,7 @@ def main(args):
     dataset = D4RLDataset(args)
 
     print("Training SRPO policy...")
-    train_policy(args, srpo_model, dataset, start_epoch=0)
+    train_policy(args, srpo_policy, dataset, start_epoch=0)
     print("Training completed.")
     run.finish()
 
