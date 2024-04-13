@@ -39,7 +39,7 @@ def train_policy(args, srpo_policy, data_loader, start_epoch=0):
 
 
 
-def main(args):
+def training(args):
     for dir in ["./SRPO_policy_models"]:
         if not os.path.exists(dir):
             os.makedirs(dir)
@@ -95,6 +95,6 @@ def main(args):
 
 if __name__ == "__main__":
     args = get_args()
-    main(args)
+    training(args)
 
 
