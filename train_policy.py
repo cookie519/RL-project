@@ -8,7 +8,7 @@ import numpy as np
 import torch
 import tqdm
 import wandb
-from dataset import D4RL_dataset
+from dataset import D4RLDataset
 from SRPO_model import SRPO
 from utils import get_args, marginal_prob_std, parallel_simple_eval_policy
 
