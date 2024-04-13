@@ -32,3 +32,56 @@ def train_policy(args, srpo_policy, data_loader, start_epoch=0):
             args.run.log({"eval/rew_deter": mean, "info/policy_q": srpo_policy.SRPO_policy.q.detach().cpu().numpy(), 
                           "info/lr": srpo_policy.SRPO_policy_optimizer.state_dict()['param_groups'][0]['lr']}, step=epoch+1)
 
+
+def main(args):
+    for dir in ["./SRPO_policy_models"]:
+        if not os.path.exists(dir):
+            os.makedirs(dir)
+    if not os.path.exists(os.path.join("./SRPO_policy_models", str(args.expid))):
+        os.makedirs(os.path.join("./SRPO_policy_models", str(args.expid)))
+    run = wandb.init(project="SRPO_policy", name=str(args.expid))
+    wandb.config.update(args)
+    
+    
+    env = gym.make(args.env)
+    env.seed(args.seed)
+    torch.manual_seed(args.seed)
+    np.random.seed(args.seed)
+    state_dim = env.observation_space.shape[0]
+    action_dim = env.action_space.shape[0]
+    args.run = run
+    
+    marginal_prob_std_fn = functools.partial(marginal_prob_std, device=args.device, beta_1=20.0)
+    args.marginal_prob_std_fn = marginal_prob_std_fn
+
+    srpo_model = SRPO(input_dim=state_dim+action_dim, output_dim=action_dim, marginal_prob_std=marginal_prob_std_fn, args=args).to(args.device)
+    srpo_model.q[0].to(args.device)
+
+    if args.actor_load_path:
+        try:
+            ckpt = torch.load(args.actor_load_path, map_location=args.device)
+            score_model.load_state_dict({k: v for k, v in ckpt.items() if "diffusion_behavior" in k}, strict=False)
+            print("Actor model loaded.")
+        except FileNotFoundError:
+            print("Actor model checkpoint not found.")
+
+    if args.critic_load_path:
+        try:
+            ckpt = torch.load(args.critic_load_path, map_location=args.device)
+            score_model.q[0].load_state_dict(ckpt)
+            print("Critic model loaded.")
+        except FileNotFoundError:
+            print("Critic model checkpoint not found.")
+
+    dataset = D4RL_dataset(args)
+
+    print("Training SRPO policy...")
+    train_policy(args, srpo_model, dataset, start_epoch=0))
+    print("Training completed.")
+    run.finish()
+
+if __name__ == "__main__":
+    args = get_args()
+    main(args)
+
+
