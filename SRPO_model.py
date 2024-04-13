@@ -27,6 +27,7 @@ class SRPO(nn.Module):
         alpha_t, std = self.marginal_prob_std(t)
         z = torch.randn_like(a)
         perturbed_a = a * alpha_t[..., None] + z * std[..., None]
+        print(perturbed_a.shape)
         
         with torch.no_grad():
             episilon = self.diffusion_behavior(perturbed_a, t, s).detach()
