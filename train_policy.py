@@ -2,6 +2,7 @@
 
 import functools
 import os
+import csv
 import d4rl
 import gym
 import numpy as np
@@ -16,6 +17,7 @@ def train_policy(args, srpo_policy, data_loader, start_epoch=0):
     n_epochs = args.n_policy_epochs
     tqdm_epoch = tqdm.trange(start_epoch, n_epochs)
     evaluation_interval = 2
+    normalized_score = [['mean', 'std']]
     for epoch in tqdm_epoch:
         avg_loss = 0.
         num_items = 0
@@ -31,6 +33,10 @@ def train_policy(args, srpo_policy, data_loader, start_epoch=0):
             mean, std = parallel_simple_eval_policy(srpo_policy.SRPO_policy.select_actions, args.env, seed = 0)
             args.run.log({"eval/rew_deter": mean, "info/policy_q": srpo_policy.SRPO_policy.q.detach().cpu().numpy(), 
                           "info/lr": srpo_policy.SRPO_policy_optimizer.state_dict()['param_groups'][0]['lr']}, step=epoch+1)
+            normalized_score.append([mean, std])
+
+    return normalized_score
+
 
 
 def main(args):
@@ -76,9 +82,16 @@ def main(args):
     dataset = D4RLDataset(args)
 
     print("Training SRPO policy...")
-    train_policy(args, srpo_policy, dataset, start_epoch=0)
+    normalized_score = train_policy(args, srpo_policy, dataset, start_epoch=0)
     print("Training completed.")
     run.finish()
+
+    filename = 'SPRO_' + args.env + 'seed' + 
+    with open(filename, mode='w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerows(normalized_score)
+
+
 
 if __name__ == "__main__":
     args = get_args()
