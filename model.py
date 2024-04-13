@@ -92,31 +92,38 @@ class MLPResNetBlock(nn.Module):
     - dropout_rate (float, optional): Dropout rate applied after the activation function. If None or 0, dropout is not used.
     - use_layer_norm (bool): Flag indicating whether to use Layer Normalization before the activation function.
     """
-    def __init__(self, features, act=F.relu, dropout_rate=None, use_layer_norm=False):
+    def __init__(self, features, act, dropout_rate=None, use_layer_norm=False):
         super(MLPResNetBlock, self).__init__()
         self.features = features
         self.act = act
         self.dropout_rate = dropout_rate
         self.use_layer_norm = use_layer_norm
 
-        layers = [nn.Linear(features, features * 4),
-                  act,
-                  nn.Linear(features * 4, features)]
-        if use_layer_norm:
-            layers.insert(1, nn.LayerNorm(features))
-        if dropout_rate is not None and dropout_rate > 0.0:
-            layers.insert(1, nn.Dropout(dropout_rate))
-        self.layers = nn.Sequential(*layers)
+        if self.use_layer_norm:
+            self.layer_norm = nn.LayerNorm(features)
 
+        self.fc1 = nn.Linear(features, features * 4)
+        self.fc2 = nn.Linear(features * 4, features)
         self.residual = nn.Linear(features, features)
+
+        self.dropout = nn.Dropout(dropout_rate) if dropout_rate is not None and dropout_rate > 0.0 else None
 
     def forward(self, x, training=False):
         residual = x
-        x = self.layers(x)
+        if self.dropout is not None:
+            x = self.dropout(x)
+
+        if self.use_layer_norm:
+            x = self.layer_norm(x)
+
+        x = self.fc1(x)
+        x = self.act(x)
+        x = self.fc2(x)
+
         if residual.shape != x.shape:
             residual = self.residual(residual)
-        return residual + x
 
+        return residual + x
 
 class MLPResNet(nn.Module):
     """
@@ -212,7 +219,7 @@ class ScoreNet_IDQL(nn.Module):
     def forward(self, x, t, condition):
         embed = self.cond_model(self.embed(t))
         all = torch.cat([x, condition, embed], dim=-1)
-        print('dim:', all.shape)
+        #print('dim:', all.shape)
         h = self.main(all)
         return h
          
