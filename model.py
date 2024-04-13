@@ -28,7 +28,7 @@ def mlp(layer_dims,
         layers.extend([nn.Linear(layer_dims[i], layer_dims[i+1]), activation()]) 
     layers.append(nn.Linear(layer_dims[-2], layer_dims[-1]))
     if output_activation  is not None:
-        layers.append(output_activation)
+        layers.append(output_activation())
 
     return nn.Sequential(*layers).to(torch.float32)
   
