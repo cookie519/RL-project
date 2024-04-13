@@ -73,7 +73,7 @@ def main(args):
         except FileNotFoundError:
             print("Critic model checkpoint not found.")
 
-    dataset = D4RL_dataset(args)
+    dataset = D4RLDataset(args)
 
     print("Training SRPO policy...")
     train_policy(args, srpo_model, dataset, start_epoch=0)
