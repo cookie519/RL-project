@@ -86,7 +86,7 @@ def training(args):
     print("Training completed.")
     run.finish()
 
-    filename = './SRPO_data/SRPO-' + args.env + 'seed' + str(args.seed)
+    filename = './SRPO_data/Score/SRPO-' + args.env + 'seed' + str(args.seed)
     with open(filename, mode='w', newline='') as file:
         writer = csv.writer(file)
         writer.writerows(normalized_score)
