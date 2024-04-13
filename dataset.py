@@ -61,7 +61,7 @@ class D4RLDataset(torch.utils.data.Dataset):
     def sample(self, batch_size):
         if self.current_index + batch_size > self.length:
             self.current_index = 0
-        if self.current_idx == 0:
+        if self.current_index == 0:
             self.shuffle_data()
         batch_indices = slice(self.current_index, self.current_index + batch_size)
         batch_data = { 's': self.states[batch_indices], 'a': self.actions[batch_indices],
