@@ -49,6 +49,9 @@ class SRPO(nn.Module):
         self.SRPO_policy_optimizer.step()
         self.SRPO_policy_lr_scheduler.step()
         self.diffusion_behavior.train()
+        return loss.item()
+
+
 
 
 
