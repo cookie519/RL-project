@@ -60,7 +60,7 @@ def main(args):
     if args.actor_load_path:
         try:
             ckpt = torch.load(args.actor_load_path, map_location=args.device)
-            score_model.load_state_dict({k: v for k, v in ckpt.items() if "diffusion_behavior" in k}, strict=False)
+            srpo_policy.load_state_dict({k: v for k, v in ckpt.items() if "diffusion_behavior" in k}, strict=False)
             print("Actor model loaded.")
         except FileNotFoundError:
             print("Actor model checkpoint not found.")
@@ -68,7 +68,7 @@ def main(args):
     if args.critic_load_path:
         try:
             ckpt = torch.load(args.critic_load_path, map_location=args.device)
-            score_model.q[0].load_state_dict(ckpt)
+            srpo_policy.q[0].load_state_dict(ckpt)
             print("Critic model loaded.")
         except FileNotFoundError:
             print("Critic model checkpoint not found.")
