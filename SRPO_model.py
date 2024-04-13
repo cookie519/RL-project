@@ -9,7 +9,7 @@ class SRPO(nn.Module):
         super().__init__()
         self.diffusion_behavior = ScoreNet_IDQL(input_dim, output_dim, marginal_prob_std, embed_dim=64, args=args)
         self.diffusion_optimizer = torch.optim.AdamW(self.diffusion_behavior.parameters(), lr=3e-4)
-        self.SRPO_policy = Dirac_Policy(input_dim-output_dim, output_dim, layer=args.policy_layer).to("cuda")
+        self.SRPO_policy = DiracPolicy(input_dim-output_dim, output_dim, layer=args.policy_layer).to("cuda")
         self.SRPO_policy_optimizer = torch.optim.Adam(self.SRPO_policy.parameters(), lr=3e-4)
         self.SRPO_policy_lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(self.SRPO_policy_optimizer, T_max=args.n_policy_epochs * 10000, eta_min=0.)
 
