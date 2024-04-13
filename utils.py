@@ -18,7 +18,7 @@ def marginal_prob_std(t: float, device: str = "cuda", beta_1: float = 20.0, beta
     std = torch.sqrt(1. - torch.exp(2. * log_mean_coeff))
     return alpha_t, std
 
-def pallaral_simple_eval_policy(policy_fn, env_name, seed, eval_episodes = 20):
+def parallel_simple_eval_policy(policy_fn, env_name, seed, eval_episodes = 20):
     """
     Evaluate a policy function in parallel across multiple episodes and environments.
 
