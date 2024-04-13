@@ -144,7 +144,7 @@ class MLPResNet(nn.Module):
         self.hidden_dim = hidden_dim
         self.activations = activations
 
-        self.fc = nn.Linear(input_dim, hidden_dim)
+        self.fc = nn.Linear(input_dim + 128, hidden_dim)
 
         self.blocks = nn.ModuleList([MLPResNetBlock(hidden_dim, activations, dropout_rate, use_layer_norm)
                                      for _ in range(num_blocks)])
