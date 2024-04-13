@@ -55,7 +55,53 @@ class SRPO(nn.Module):
 
 
 
+class IQL_Critic(nn.Module):
+    def __init__(self, adim, sdim, args) -> None:
+        super().__init__()
+        self.q0 = TwinQ(adim, sdim, args.q_layer).to(args.device)
+        print(args.q_layer)
+        self.q0_target = copy.deepcopy(self.q0).to(args.device)
 
+        self.vf = ValueFunction(sdim).to("cuda")
+        self.q_optimizer = torch.optim.Adam(self.q0.parameters(), lr=3e-4)
+        self.v_optimizer = torch.optim.Adam(self.vf.parameters(), lr=3e-4)
+        self.discount = 0.99
+        self.args = args
+        self.tau = 0.9 if "maze" in args.env else 0.7
+        print(self.tau)
+
+    def update_q0(self, data):
+        s = data["s"]
+        a = data["a"]
+        r = data["r"]
+        s_ = data["s_"]
+        d = data["d"]
+        with torch.no_grad():
+            target_q = self.q0_target(a, s).detach()
+            next_v = self.vf(s_).detach()
+
+        # Update value function
+        v = self.vf(s)
+        adv = target_q - v
+        v_loss = asymmetric_l2_loss(adv, self.tau)
+        self.v_optimizer.zero_grad(set_to_none=True)
+        v_loss.backward()
+        self.v_optimizer.step()
+        
+        # Update Q function
+        targets = r + (1. - d.float()) * self.discount * next_v.detach()
+        qs = self.q0.both(a, s)
+        self.v = v.mean()
+        q_loss = sum(torch.nn.functional.mse_loss(q, targets) for q in qs) / len(qs)
+        self.q_optimizer.zero_grad(set_to_none=True)
+        q_loss.backward()
+        self.q_optimizer.step()
+        self.v_loss = v_loss
+        self.q_loss = q_loss
+        self.q = target_q.mean()
+        self.v = next_v.mean()
+        # Update target
+        update_target(self.q0, self.q0_target, 0.005)        
 
 
 
