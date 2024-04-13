@@ -76,7 +76,7 @@ def main(args):
     dataset = D4RL_dataset(args)
 
     print("Training SRPO policy...")
-    train_policy(args, srpo_model, dataset, start_epoch=0))
+    train_policy(args, srpo_model, dataset, start_epoch=0)
     print("Training completed.")
     run.finish()
 
