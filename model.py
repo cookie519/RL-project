@@ -212,6 +212,7 @@ class ScoreNet_IDQL(nn.Module):
     def forward(self, x, t, condition):
         embed = self.cond_model(self.embed(t))
         all = torch.cat([x, condition, embed], dim=-1)
+        print('dim:', all.shape)
         h = self.main(all)
         return h
          
