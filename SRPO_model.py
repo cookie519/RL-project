@@ -27,29 +27,36 @@ class SRPO(nn.Module):
         alpha_t, std = self.marginal_prob_std(t)
         z = torch.randn_like(a)
         perturbed_a = a * alpha_t[..., None] + z * std[..., None]
-        #print(perturbed_a.shape)
-        
+
         with torch.no_grad():
             episilon = self.diffusion_behavior(perturbed_a, t, s).detach()
-            if "noise" in self.args.get('WT', ''):
-                episilon -= z
-        
-        wt = {'VDS': std ** 2, 'stable': 1.0, 'score': alpha_t / std}.get(self.args.get('WT', ''), 1.0)
+            if "noise" in self.args.WT:
+                episilon = episilon - z
+        if "VDS" in self.args.WT:
+            wt = std ** 2
+        elif "stable" in self.args.WT:
+            wt = 1.0
+        elif "score" in self.args.WT:
+            wt = alpha_t / std
+        else:
+            assert False
         detach_a = a.detach().requires_grad_(True)
-        qs = self.q[0].q0_target.both(detach_a, s)
+        qs = self.q[0].q0_target.both(detach_a , s)
         q = (qs[0].squeeze() + qs[1].squeeze()) / 2.0
-        guidance = torch.autograd.grad(torch.sum(q), detach_a)[0].detach()
-
-        if self.args.get('regq', False):
-            guidance /= torch.norm(guidance, dim=-1, keepdim=True) + 1e-8
+        self.SRPO_policy.q = torch.mean(q)
         
-        loss = (episilon * a).sum(-1) * wt - (guidance * a).sum(-1) * self.args.get('beta', 1.0)
+        guidance =  torch.autograd.grad(torch.sum(q), detach_a)[0].detach()
+        if self.args.regq:
+            guidance_norm = torch.mean(guidance ** 2, dim=-1, keepdim=True).sqrt()
+            guidance = guidance / guidance_norm
+        loss = (episilon * a).sum(-1) * wt - (guidance * a).sum(-1) * self.args.beta
         loss = loss.mean()
         self.SRPO_policy_optimizer.zero_grad(set_to_none=True)
         loss.backward()
         self.SRPO_policy_optimizer.step()
         self.SRPO_policy_lr_scheduler.step()
         self.diffusion_behavior.train()
+        
         return loss.item()
 
 
