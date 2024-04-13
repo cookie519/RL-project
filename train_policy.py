@@ -86,7 +86,7 @@ def main(args):
     print("Training completed.")
     run.finish()
 
-    filename = 'SPRO_' + args.env + 'seed' + str(args.seed)
+    filename = 'SPRO-' + args.env + 'seed' + str(args.seed)
     with open(filename, mode='w', newline='') as file:
         writer = csv.writer(file)
         writer.writerows(normalized_score)
