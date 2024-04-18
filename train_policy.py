@@ -61,7 +61,7 @@ def training(args):
     args.marginal_prob_std_fn = marginal_prob_std_fn
 
     srpo_policy = SRPO(input_dim=state_dim+action_dim, output_dim=action_dim, marginal_prob_std=marginal_prob_std_fn, args=args).to(args.device)
-    srpo_policy.q[0].to(args.device)
+    srpo_policy.to(args.device) #.q[0]
 
     if args.actor_load_path:
         try:
