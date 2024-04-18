@@ -10,9 +10,9 @@ temperature_coefficients = {"antmaze-medium-play-v2": 0.08, "antmaze-umaze-v2": 
                             "walker2d-medium-expert-v2": 0.1, "walker2d-medium-v2": 0.05, "walker2d-medium-replay-v2": 0.5, 
                             "halfcheetah-medium-expert-v2": 0.01, "halfcheetah-medium-v2": 0.2, "halfcheetah-medium-replay-v2": 0.2}
 
-def marginal_prob_std(t: float, device: str = "cuda", beta_1: float = 20.0, beta_0: float = 0.1) -> tuple:
+def marginal_prob_std(t, device = "cuda", beta_1 = 20.0, beta_0 = 0.1) -> tuple:
     """Compute the mean and standard deviation of $p_{0t}(x(t) | x(0))$."""
-    t_tensor = torch.tensor(t, device=device)
+    t_tensor = t.clone().detach()
     log_mean_coeff = -0.25 * t_tensor ** 2 * (beta_1 - beta_0) - 0.5 * t_tensor * beta_0
     alpha_t = torch.exp(log_mean_coeff)
     std = torch.sqrt(1. - torch.exp(2. * log_mean_coeff))
