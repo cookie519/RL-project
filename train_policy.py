@@ -46,7 +46,7 @@ def training(args):
     run_name = os.path.join("./SRPO_policy_models", str(args.expid))
     if not os.path.exists(run_name):
         os.makedirs(run_name)
-    logger = CustomLogger(log_dir=run_name)
+    logger = CustomLogger(comment=str(args.expid))
     for key, value in vars(args).items():
         logger.log(**{f'config/{key}': value})
     
