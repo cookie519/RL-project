@@ -46,7 +46,8 @@ def training(args):
     run_name = os.path.join("./SRPO_policy_models", str(args.expid))
     if not os.path.exists(run_name):
         os.makedirs(run_name)
-    logger = CustomLogger(comment=str(args.expid))
+    logger = CustomLogger(log_dir="./runs")
+    #logger.log(env=args.env, seed=args.seed)
     for key, value in vars(args).items():
         logger.log(**{f'config/{key}': value})
     
@@ -62,7 +63,7 @@ def training(args):
     args.marginal_prob_std_fn = marginal_prob_std_fn
 
     srpo_policy = SRPO(input_dim=state_dim+action_dim, output_dim=action_dim, marginal_prob_std=marginal_prob_std_fn, args=args).to(args.device)
-    srpo_policy.to(args.device) #.q[0]
+    srpo_policy.q[0].to(args.device)
 
     if args.actor_load_path:
         try:

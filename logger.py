@@ -9,6 +9,9 @@ class CustomLogger:
     def log(self, **kwargs):
         for key, val in kwargs.items():
             self.stats[key].append(val)
-            self.logger.add_scalar(f'stats/{key}', val, len(self.stats[key]) - 1)
+            if isinstance(val, str):
+                self.logger.add_text(f'stats/{key}', val, len(self.stats[key]) - 1)
+            else:
+                self.logger.add_scalar(f'stats/{key}', val, len(self.stats[key]) - 1)
 
 
