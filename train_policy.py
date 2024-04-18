@@ -12,6 +12,7 @@ import wandb
 from dataset import D4RLDataset
 from SRPO_model import SRPO
 from utils import get_args, marginal_prob_std, parallel_simple_eval_policy
+from utils import CustomLogger
 
 def train_policy(args, srpo_policy, data_loader, start_epoch=0):
     n_epochs = args.n_policy_epochs
@@ -31,8 +32,8 @@ def train_policy(args, srpo_policy, data_loader, start_epoch=0):
         
         if (epoch % evaluation_interval == 0) or (epoch == n_epochs - 1):  # Evaluating on the first and last epoch, and periodically
             mean, std = parallel_simple_eval_policy(srpo_policy.SRPO_policy.select_actions, args.env, seed = 0)
-            args.run.log({"eval/rew_deter": mean, "info/policy_q": srpo_policy.SRPO_policy.q.detach().cpu().numpy(), 
-                          "info/lr": srpo_policy.SRPO_policy_optimizer.state_dict()['param_groups'][0]['lr']}, step=epoch+1)
+            args.run.log(eval=mean, policy_q=srpo_policy.SRPO_policy.q.detach().cpu().numpy(), 
+                          lr=srpo_policy.SRPO_policy_optimizer.state_dict()['param_groups'][0]['lr'])
             normalized_score.append([mean, std])
 
     return normalized_score
@@ -40,14 +41,14 @@ def train_policy(args, srpo_policy, data_loader, start_epoch=0):
 
 
 def training(args):
-    for dir in ["./SRPO_policy_models"]:
-        if not os.path.exists(dir):
-            os.makedirs(dir)
-    if not os.path.exists(os.path.join("./SRPO_policy_models", str(args.expid))):
-        os.makedirs(os.path.join("./SRPO_policy_models", str(args.expid)))
-    run = wandb.init(project="SRPO_policy", name=str(args.expid))
-    wandb.config.update(args)
-    
+    if not os.path.exists("./SRPO_policy_models"):
+        os.makedirs(dir)
+    run_name = os.path.join("./SRPO_policy_models", str(args.expid))
+    if not os.path.exists(run_name):
+        os.makedirs(run_name)
+    logger = CustomLogger(log_dir=run_name)
+    for key, value in vars(args).items():
+        logger.log(**{f'config/{key}': value})
     
     env = gym.make(args.env)
     env.seed(args.seed)
@@ -55,7 +56,7 @@ def training(args):
     np.random.seed(args.seed)
     state_dim = env.observation_space.shape[0]
     action_dim = env.action_space.shape[0]
-    args.run = run
+    args.run = logger
     
     marginal_prob_std_fn = functools.partial(marginal_prob_std, device=args.device, beta_1=20.0)
     args.marginal_prob_std_fn = marginal_prob_std_fn
@@ -84,9 +85,9 @@ def training(args):
     print("Training SRPO policy...")
     normalized_score = train_policy(args, srpo_policy, dataset, start_epoch=0)
     print("Training completed.")
-    run.finish()
+    logger.close()
 
-    filename = './SRPO_data/Score/SRPO-' + args.env + 'seed' + str(args.seed)
+    filename = './SRPO_data/SRPO-' + args.env + 'seed' + str(args.seed)
     with open(filename, mode='w', newline='') as file:
         writer = csv.writer(file)
         writer.writerows(normalized_score)
