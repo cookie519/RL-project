@@ -12,7 +12,7 @@ import wandb
 from dataset import D4RLDataset
 from SRPO_model import SRPO
 from utils import get_args, marginal_prob_std, parallel_simple_eval_policy
-from utils import CustomLogger
+from logger import CustomLogger
 
 def train_policy(args, srpo_policy, data_loader, start_epoch=0):
     n_epochs = args.n_policy_epochs
