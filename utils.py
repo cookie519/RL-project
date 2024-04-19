@@ -115,12 +115,12 @@ def plot_get_args() -> argparse.Namespace:
     return args
     
 
-def read_score_data(model_name='SRPO_policy_models', env="halfcheetah-medium-expert-v2", seeds=[0,1,2])
+def read_score_data(model_name='SRPO_policy_models', env="halfcheetah-medium-expert-v2", seeds=[0,1,2]):
   mean = []
   std = []
   for seed in seeds:
     expid = env + '-baseline-seed' + str(seed)
-    filename = os.path.join("./", model_name, expid, "normalized_score.csv")
+    filename = os.path.join(".", model_name, expid, "normalized_score.csv")
     df = pd.read_csv(filename, header=0)
     data_array = df.to_numpy()
     mean.append(data_array[:,0])
