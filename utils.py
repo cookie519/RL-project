@@ -116,7 +116,7 @@ def plot_get_args() -> argparse.Namespace:
     return args
     
 
-def read_score_data(model_name='SRPO_policy_models', env="halfcheetah-medium-expert-v2", seeds=[0,1,2]):
+def read_score_data(model_name='SRPO_policy_models', env="halfcheetah-medium-v2", seeds=[0,1,2]):
   mean = []
   std = []
   for seed in seeds:
@@ -140,7 +140,7 @@ def read_score_data(model_name='SRPO_policy_models', env="halfcheetah-medium-exp
   return overall_mean, overall_std_deviation
 
 
-def plot_training_performance(env="halfcheetah-medium-expert-v2", seeds=[0,1,2]):
+def plot_training_performance(env="halfcheetah-medium-v2", seeds=[0,1,2]):
   srpo_mean, spro_std = read_score_data('SRPO_policy_models', env=env, seeds=seeds)
   #diffql_mean, diffql_std = read_score_data('Diff_ql_models', env=env, seeds=seeds)
 
