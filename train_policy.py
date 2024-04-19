@@ -94,6 +94,7 @@ def training(args):
     logger.close()
     end_time = time.time()
     time_cost = end_time - start_time
+    time_cost = [['Time'], [time_cost]]
 
     file_time = os.path.join("./SRPO_policy_models", str(args.expid), "training_time.csv")
     with open(file_time, mode='w', newline='') as file_t:
