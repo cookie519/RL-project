@@ -37,10 +37,18 @@ def train_policy(args, srpo_policy, data_loader, start_epoch=0):
         tqdm_epoch.set_description(f'Average Loss: {avg_loss:.5f}')
         
         if (epoch % evaluation_interval == 0) or (epoch == n_epochs - 1):  # Evaluating on the first and last epoch, and periodically
-            mean, std = parallel_simple_eval_policy(srpo_policy.SRPO_policy.select_actions, args.env, seed = 0)
+            mean, std, time_eval, query_eval = parallel_simple_eval_policy(srpo_policy.SRPO_policy.select_actions, args.env, seed = 0)
             args.run.log(eval=mean, policy_q=srpo_policy.SRPO_policy.q.detach().cpu().numpy(), 
                           lr=srpo_policy.SRPO_policy_optimizer.state_dict()['param_groups'][0]['lr'])
             normalized_score.append([mean, std])
+            if epoch == n_epochs - 1:
+                time_eval_record = [['Query times', 'Time'], [query_eval, time_eval]]
+                file_time = os.path.join("./SRPO_policy_models", str(args.expid), "eval_time.csv")
+                with open(file_time, mode='w', newline='') as file_t:
+                    writer = csv.writer(file_t)
+                    writer.writerows(time_eval_record)
+    
+                
 
     # save policy
     torch.save(srpo_policy.state_dict(), os.path.join("./SRPO_policy_models", str(args.expid), "policy.pth"))
