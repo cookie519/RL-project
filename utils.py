@@ -141,18 +141,18 @@ def read_score_data(model_name='SRPO_policy_models', env="halfcheetah-medium-exp
 
 def plot_training_performance(env="halfcheetah-medium-expert-v2", seeds=[0,1,2]):
   srpo_mean, spro_std = read_score_data('SRPO_policy_models', env=env, seeds=seeds)
-  diffql_mean, diffql_std = read_score_data('Diff_ql_models', env=env, seeds=seeds)
+  #diffql_mean, diffql_std = read_score_data('Diff_ql_models', env=env, seeds=seeds)
 
   x_srpo = np.arange(srpo_mean.shape[0]) * 20
-  x_diffql = np.arange(diffql_mean.shape[0]) * 20
+  #x_diffql = np.arange(diffql_mean.shape[0]) * 20
 
   plt.figure(figsize=(10, 6))
   plt.plot(x_srpo, srpo_mean, label='SRPO', color='orangered')
-  plt.plot(x_diffql, diffql_mean, label= 'Diffusion-QL', color='c')
+  #plt.plot(x_diffql, diffql_mean, label= 'Diffusion-QL', color='c')
   #plt.plot(x_diffusion, y_diffusion, label='IQL', color='green')
 
   plt.fill_between(x_srpo, srpo_mean - spro_std, srpo_mean + spro_std, color='orangered', alpha=0.1)
-  plt.fill_between(x_diffql, diffql_mean - diffql_std, diffql_mean + diffql_std, color='c', alpha=0.1)
+  #plt.fill_between(x_diffql, diffql_mean - diffql_std, diffql_mean + diffql_std, color='c', alpha=0.1)
   #plt.fill_between(x_diffusion, y_diffusion - variance, y_diffusion + variance, color='green', alpha=0.1)
 
 # Titles and labels
