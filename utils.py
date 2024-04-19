@@ -116,6 +116,10 @@ def plot_get_args() -> argparse.Namespace:
 
 def plot_error_bar():
   args = plot_get_args()
+  for seed in [0, 1, 2]:  # change seed set here
+    expid = args.env '-baseline-seed' + str(seed)
+    filename = 
+    
   
 
 
