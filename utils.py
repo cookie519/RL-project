@@ -142,6 +142,9 @@ def read_score_data(model_name='SRPO_policy_models', env="halfcheetah-medium-exp
 def plot_training_performance(env="halfcheetah-medium-expert-v2", seeds=[0,1,2]):
   srpo_mean, spro_std = read_score_data('SRPO_policy_models', env=env, seeds=seeds)
   diffql_mean, diffql_std = read_score_data('Diff_ql_models', env=env, seeds=seeds)
+
+  x_srpo = np.arange(len(srpo_mean)) * 20
+  x_diffql = np.arange(len(diffql_mean)) * 20
   
 
 
