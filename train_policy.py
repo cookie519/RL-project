@@ -96,7 +96,7 @@ def training(args):
     time_cost = end_time - start_time
 
     file_time = os.path.join("./SRPO_policy_models", str(args.expid), "traning_time.csv")
-    with open(filename, mode='w', newline='') as file_t:
+    with open(file_name, mode='w', newline='') as file_t:
         writer = csv.writer(file_t)
         writer.writerows(file_time)
 
