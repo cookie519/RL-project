@@ -102,3 +102,8 @@ def get_args() -> argparse.Namespace:
         args.beta = temperature_coefficients[args.env]
     print(args)
     return args
+
+
+
+def plot_error_bar():
+  pass
