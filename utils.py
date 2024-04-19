@@ -4,6 +4,7 @@ import gym
 import numpy as np
 import torch
 import time 
+import pandas as pd
 
 temperature_coefficients = {"antmaze-medium-play-v2": 0.08, "antmaze-umaze-v2": 0.02, "antmaze-umaze-diverse-v2": 0.04, 
                             "antmaze-medium-diverse-v2": 0.05, "antmaze-large-diverse-v2": 0.05, "antmaze-large-play-v2": 0.06, 
@@ -114,11 +115,32 @@ def plot_get_args() -> argparse.Namespace:
     return args
     
 
-def plot_error_bar():
-  args = plot_get_args()
-  for seed in [0, 1, 2]:  # change seed set here
-    expid = args.env '-baseline-seed' + str(seed)
-    filename = os.path.join("./SRPO_policy_models", expid, "normalized_score.csv")
+def read_score_data(model_name='SRPO_policy_models', env="halfcheetah-medium-expert-v2", seeds=[0,1,2])
+  mean = []
+  std = []
+  for seed in seeds:
+    expid = env + '-baseline-seed' + str(seed)
+    filename = os.path.join("./", model_name, expid, "normalized_score.csv")
+    df = pd.read_csv(filename, header=0)
+    data_array = df.to_numpy()
+    mean.append(data_array[:,0])
+    std.append(data_array[:,1])
+
+  mean = np.array(mean)
+  std = np.array(std)
+  
+  overall_mean = np.mean(mean, axis=0)
+  mean_variance = np.mean((mean - overall_mean)**2, axis=0)
+  average_variances = np.mean(std**2, axis=0)
+  overall_variance = average_variances + mean_variance
+  overall_std_deviation = np.sqrt(overall_variance)
+
+  return overall_mean, overall_std_deviation
+
+
+  
+  
+  
     
   
 
