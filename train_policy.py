@@ -13,6 +13,7 @@ from dataset import D4RLDataset
 from SRPO_model import SRPO
 from utils import get_args, marginal_prob_std, parallel_simple_eval_policy
 from logger import CustomLogger
+import time
 
 def train_policy(args, srpo_policy, data_loader, start_epoch=0):
     n_epochs = args.n_policy_epochs
@@ -50,6 +51,8 @@ def training(args):
     #logger.log(env=args.env, seed=args.seed)
     for key, value in vars(args).items():
         logger.log(**{f'config/{key}': value})
+
+    start_time = time.time()
     
     env = gym.make(args.env)
     env.seed(args.seed)
@@ -87,6 +90,13 @@ def training(args):
     normalized_score = train_policy(args, srpo_policy, dataset, start_epoch=0)
     print("Training completed.")
     logger.close()
+    end_time = time.time()
+    time_cost = end_time - start_time
+
+    file_time = './SRPO_time/SRPO-'+ args.env + 'seed' + str(args.seed)
+    with open(filename, mode='w', newline='') as file_t:
+        writer = csv.writer(file_t)
+        writer.writerows(file_time)
 
     filename = './SRPO_data/SRPO-' + args.env + 'seed' + str(args.seed)
     with open(filename, mode='w', newline='') as file:
