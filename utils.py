@@ -121,10 +121,11 @@ def read_score_data(model_name='SRPO_policy_models', env="halfcheetah-medium-exp
   for seed in seeds:
     expid = env + '-baseline-seed' + str(seed)
     filename = os.path.join(".", model_name, expid, "normalized_score.csv")
-    df = pd.read_csv(filename, header=0)
-    data_array = df.to_numpy()
-    mean.append(data_array[:,0])
-    std.append(data_array[:,1])
+    df = pd.read_csv(filename)
+    if 'mean' in df.columns and 'std' in df.columns:  # Validate column names
+        mean.append(df['mean'].to_numpy())
+        std.append(df['std'].to_numpy())
+    
 
   mean = np.array(mean)
   std = np.array(std)
