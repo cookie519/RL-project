@@ -95,10 +95,10 @@ def training(args):
     end_time = time.time()
     time_cost = end_time - start_time
 
-    file_time = os.path.join("./SRPO_policy_models", str(args.expid), "traning_time.csv")
+    file_time = os.path.join("./SRPO_policy_models", str(args.expid), "training_time.csv")
     with open(file_name, mode='w', newline='') as file_t:
         writer = csv.writer(file_t)
-        writer.writerows(file_time)
+        writer.writerows(time_cost)
 
     filename = os.path.join("./SRPO_policy_models", str(args.expid), "normalized_score.csv")
     with open(filename, mode='w', newline='') as file:
