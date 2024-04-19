@@ -20,15 +20,20 @@ def train_policy(args, srpo_policy, data_loader, start_epoch=0):
     tqdm_epoch = tqdm.trange(start_epoch, n_epochs)
     evaluation_interval = 2
     normalized_score = [['mean', 'std']]
-    for epoch in tqdm_epoch:
+    time_cost = np.zeros(n_epochs)
+    for i, epoch in enumerate(tqdm_epoch):
         avg_loss = 0.
         num_items = 0
+        start_time = time.time()
         for _ in range(10000):  
             data = data_loader.sample(args.policy_batchsize)
             loss = srpo_policy.update_SRPO_policy(data)  
             avg_loss += loss  # Corrected to accumulate the returned loss
             num_items += 1
         avg_loss /= num_items  # Calculate mean loss outside the loop for efficiency
+        end_time = time.time()
+        time_cost[i] = end_time - start_time
+        
         tqdm_epoch.set_description(f'Average Loss: {avg_loss:.5f}')
         
         if (epoch % evaluation_interval == 0) or (epoch == n_epochs - 1):  # Evaluating on the first and last epoch, and periodically
@@ -37,9 +42,19 @@ def train_policy(args, srpo_policy, data_loader, start_epoch=0):
                           lr=srpo_policy.SRPO_policy_optimizer.state_dict()['param_groups'][0]['lr'])
             normalized_score.append([mean, std])
 
+    # save policy
     torch.save(srpo_policy.state_dict(), os.path.join("./SRPO_policy_models", str(args.expid), "policy.pth"))
+    
+    # save normalized score
+    filename = os.path.join("./SRPO_policy_models", str(args.expid), "normalized_score.csv")
+    with open(filename, mode='w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerows(normalized_score)
 
-    return normalized_score
+    # save training time
+    training_time = np.sum(time_cost)
+    time_list = ['']
+    
 
 
 
@@ -89,7 +104,7 @@ def training(args):
     dataset = D4RLDataset(args)
 
     print("Training SRPO policy...")
-    normalized_score = train_policy(args, srpo_policy, dataset, start_epoch=0)
+    train_policy(args, srpo_policy, dataset, start_epoch=0)
     print("Training completed.")
     logger.close()
     end_time = time.time()
@@ -101,11 +116,7 @@ def training(args):
         writer = csv.writer(file_t)
         writer.writerows(time_cost)
 
-    filename = os.path.join("./SRPO_policy_models", str(args.expid), "normalized_score.csv")
-    with open(filename, mode='w', newline='') as file:
-        writer = csv.writer(file)
-        writer.writerows(normalized_score)
-
+    
 
 
 if __name__ == "__main__":
