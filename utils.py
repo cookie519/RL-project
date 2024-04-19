@@ -3,6 +3,7 @@ import d4rl
 import gym
 import numpy as np
 import torch
+import time 
 
 temperature_coefficients = {"antmaze-medium-play-v2": 0.08, "antmaze-umaze-v2": 0.02, "antmaze-umaze-diverse-v2": 0.04, 
                             "antmaze-medium-diverse-v2": 0.05, "antmaze-large-diverse-v2": 0.05, "antmaze-large-play-v2": 0.06, 
@@ -37,13 +38,19 @@ def parallel_simple_eval_policy(policy_fn, env_name, seed, eval_episodes = 20):
         env.buffer_state = env.reset()
         env.buffer_return = 0.0
 
+    time_cost = 0.0
+    query_times = 0
     # Process environments in parallel
     active_envs = environments.copy()
     while active_envs:
         states = np.array([env.buffer_state for env in active_envs])
         states_tensor = torch.tensor(states, device="cuda", dtype=torch.float32)
+        start_time = time.time()
         with torch.no_grad():
             actions = policy_fn(states_tensor).detach().cpu().numpy()
+        end_time = time.time()
+        time_cost += end_time - start_time
+        query_times += 1
         
         next_envs = []
         for env, action in zip(active_envs, actions):
@@ -59,7 +66,7 @@ def parallel_simple_eval_policy(policy_fn, env_name, seed, eval_episodes = 20):
     mean_score = np.mean(normalized_scores)
     std_score = np.std(normalized_scores)
 
-    return mean_score, std_score
+    return mean_score, std_score, time_cost, query_times
 
 def get_args() -> argparse.Namespace:
     """Parse and return command line arguments."""
