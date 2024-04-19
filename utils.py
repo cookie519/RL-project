@@ -104,6 +104,23 @@ def get_args() -> argparse.Namespace:
     return args
 
 
+def plot_get_args() -> argparse.Namespace:
+    """Parse and return command line arguments."""
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--env", default="halfcheetah-medium-expert-v2")
+    print("**************************")
+    args = parser.parse_known_args()[0]
+    print(args)
+    return args
+    
 
 def plot_error_bar():
-  pass
+  args = plot_get_args()
+  
+
+
+
+
+
+
+  
