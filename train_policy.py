@@ -37,6 +37,8 @@ def train_policy(args, srpo_policy, data_loader, start_epoch=0):
                           lr=srpo_policy.SRPO_policy_optimizer.state_dict()['param_groups'][0]['lr'])
             normalized_score.append([mean, std])
 
+    torch.save(srpo_policy.state_dict(), os.path.join("./SRPO_policy_models", str(args.expid), "policy.pth"))
+
     return normalized_score
 
 
@@ -93,12 +95,12 @@ def training(args):
     end_time = time.time()
     time_cost = end_time - start_time
 
-    file_time = './SRPO_time/SRPO-'+ args.env + 'seed' + str(args.seed)
+    file_time = os.path.join("./SRPO_policy_models", str(args.expid), "traning_time.csv")
     with open(filename, mode='w', newline='') as file_t:
         writer = csv.writer(file_t)
         writer.writerows(file_time)
 
-    filename = './SRPO_data/SRPO-' + args.env + 'seed' + str(args.seed)
+    filename = os.path.join("./SRPO_policy_models", str(args.expid), "normalized_score.csv")
     with open(filename, mode='w', newline='') as file:
         writer = csv.writer(file)
         writer.writerows(normalized_score)
