@@ -5,6 +5,7 @@ import numpy as np
 import torch
 import time 
 import pandas as pd
+import os
 
 temperature_coefficients = {"antmaze-medium-play-v2": 0.08, "antmaze-umaze-v2": 0.02, "antmaze-umaze-diverse-v2": 0.04, 
                             "antmaze-medium-diverse-v2": 0.05, "antmaze-large-diverse-v2": 0.05, "antmaze-large-play-v2": 0.06, 
