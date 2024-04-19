@@ -78,7 +78,6 @@ def training(args):
     if not os.path.exists(run_name):
         os.makedirs(run_name)
     logger = CustomLogger(log_dir="./runs")
-    #logger.log(env=args.env, seed=args.seed)
     for key, value in vars(args).items():
         logger.log(**{f'config/{key}': value})
 
@@ -118,10 +117,8 @@ def training(args):
     print("Training SRPO policy...")
     train_policy(args, srpo_policy, dataset, start_epoch=0)
     print("Training completed.")
-    logger.close()
+    logger.logger.close()
     
-    
-
 
 if __name__ == "__main__":
     args = get_args()
