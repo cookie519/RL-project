@@ -53,7 +53,12 @@ def train_policy(args, srpo_policy, data_loader, start_epoch=0):
 
     # save training time
     training_time = np.sum(time_cost)
-    time_list = ['']
+    time_list = [['Gradient steps', 'Time'], [n_epochs*10000, training_time]]
+
+    file_time = os.path.join("./SRPO_policy_models", str(args.expid), "training_time.csv")
+    with open(file_time, mode='w', newline='') as file_t:
+        writer = csv.writer(file_t)
+        writer.writerows(time_list)
     
 
 
@@ -69,7 +74,6 @@ def training(args):
     for key, value in vars(args).items():
         logger.log(**{f'config/{key}': value})
 
-    start_time = time.time()
     
     env = gym.make(args.env)
     env.seed(args.seed)
@@ -107,15 +111,7 @@ def training(args):
     train_policy(args, srpo_policy, dataset, start_epoch=0)
     print("Training completed.")
     logger.close()
-    end_time = time.time()
-    time_cost = end_time - start_time
-    time_cost = [['Time'], [time_cost]]
-
-    file_time = os.path.join("./SRPO_policy_models", str(args.expid), "training_time.csv")
-    with open(file_time, mode='w', newline='') as file_t:
-        writer = csv.writer(file_t)
-        writer.writerows(time_cost)
-
+    
     
 
 
