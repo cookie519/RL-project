@@ -72,7 +72,7 @@ def train_policy(args, srpo_policy, data_loader, start_epoch=0):
 
 def training(args):
     if not os.path.exists("./SRPO_policy_models"):
-        os.makedirs(dir)
+        os.makedirs("./SRPO_policy_models")
     run_name = os.path.join("./SRPO_policy_models", str(args.expid))
     if not os.path.exists(run_name):
         os.makedirs(run_name)
